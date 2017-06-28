@@ -16,7 +16,7 @@ namespace ProceduralCaves
 		}
 	}
 
-	CaveGenerator::CaveGenerator(unsigned int width, unsigned int height, unsigned int fillProbability, unsigned int smoothing) 
+	CaveGenerator::CaveGenerator(int width, int height, int fillProbability, int smoothing) 
 		: _width{ width }, _height{ height }, _fillProbability{ fillProbability }, _smoothing{ smoothing }
 	{
 		_cave = std::vector < std::vector<int>>(_width);
@@ -74,7 +74,7 @@ namespace ProceduralCaves
 		_cave = newCave;
 	}
 
-	unsigned int CaveGenerator::GetNeighborsNumber(unsigned int row, unsigned int column) const
+	int CaveGenerator::GetNeighborsNumber(int row, int column) const
 	{
 		unsigned int neighbors = 0;
 

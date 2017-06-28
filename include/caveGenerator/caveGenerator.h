@@ -6,18 +6,21 @@ namespace ProceduralCaves
 	{
 	public:
 		CaveGenerator();
-		CaveGenerator(unsigned int width, unsigned int height, unsigned int fillProbability, unsigned int smoothing);
+		CaveGenerator(int width, int height, int fillProbability, int smoothing);
 
 		std::vector<std::vector<int>> GenerateMap();
+		
+		void SetFillProbability(int newFillProbability) { _fillProbability = newFillProbability; }
+		void SetSmoothing(int newSmoothing) { _smoothing = newSmoothing; }
 	private:
 		std::vector<std::vector<int>> _cave; // 0 = empty, 1 = wall
-		unsigned int _width;
-		unsigned int _height;
-		unsigned int _fillProbability;
-		unsigned int _smoothing;
+		int _width;
+		int _height;
+		int _fillProbability;
+		int _smoothing;
 
 		void SmoothMap();
-		unsigned int GetNeighborsNumber(unsigned int row, unsigned int column) const;
+		int GetNeighborsNumber(int row, int column) const;
 
 	}; // class CaveGenerator
 

@@ -1,16 +1,25 @@
 #include "caveGenerator\caveGenerator.h"
+
+#include "imgui.h"
+#include "imgui-SFML.h"
+
 #include "SFML\Graphics.hpp"
+#include <SFML\System\Clock.hpp>
+#include <SFML\Window\Event.hpp>
 
 #include <iostream>
 #include <vector>
 
 int main(int argc, char **argv)
 {
-	unsigned int mapWidth = 80;
-	unsigned int mapHeight = 80;
-	int cellSize = 10;
+	int mapWidth = 80;
+	int mapHeight = 80;
+	float cellSize = 10.0f;
+	int fillProbability = 50;
+	int smoothing = 3;
 
-	sf::RenderWindow window(sf::VideoMode(mapWidth*cellSize, mapHeight*cellSize), "Procedural Map Generator");
+	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize), mapHeight*static_cast<int>(cellSize)), "Procedural Map Generator");
+	ImGui::SFML::Init(window);
 
 	std::vector<std::vector<sf::CircleShape>> graphicMap;
 
@@ -26,7 +35,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ProceduralCaves::CaveGenerator generator{mapWidth, mapHeight, 50, 3};
+	ProceduralCaves::CaveGenerator generator{ mapWidth, mapHeight, fillProbability, smoothing };
 
 	std::vector<std::vector<int>> map = generator.GenerateMap();
 
@@ -41,20 +50,39 @@ int main(int argc, char **argv)
 	//	std::cout << std::endl;
 	//}
 
+	sf::Color bgColor;
+	float color[3] = { 0.f, 0.f, 0.f };
+	char windowTitle[255] = "ImGui + SFML = <3";
+	sf::Clock deltaClock;
+
 	while (window.isOpen())
 	{
 		// check all the window's events that were triggered since the last iteration of the loop
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(event);
+
 			// "close requested" event: we close the window
 			if (event.type == sf::Event::Closed)
 				window.close();
-			else if (event.type == sf::Event::MouseButtonPressed)
-			{
-				map = generator.GenerateMap();
-			}
+
 		}
+
+		ImGui::SFML::Update(window, deltaClock.restart());
+
+		ImGui::Begin("Map Values"); // begin window
+
+		// Window title text edit
+		ImGui::InputInt("Fill Probability", &fillProbability, 5);
+		ImGui::InputInt("Smoothing", &smoothing);
+
+		if (ImGui::Button("Generate New Map")) {
+			generator.SetFillProbability(fillProbability);
+			generator.SetSmoothing(smoothing);
+			map = generator.GenerateMap();
+		}
+		ImGui::End(); // end window
 
 		window.clear();
 
@@ -72,6 +100,8 @@ int main(int argc, char **argv)
 				window.draw(graphicMap[i][j]);
 			}
 		}
+
+		ImGui::Render();
 
 		window.display();
 
