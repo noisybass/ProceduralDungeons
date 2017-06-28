@@ -1,3 +1,5 @@
 # Ignore buildtree:
-build/
 _build/
+
+# Ignore dependencies:
+Libs/
