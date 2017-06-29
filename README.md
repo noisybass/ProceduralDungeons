@@ -11,7 +11,7 @@ Procedural Map Generator
 
 ## References
 
- - [Cellular Automata Method for Generating_Random_Cave-Like Levels](http://www.roguebasin.com/index.php?title=Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels)
+ - [Cellular Automata Method for Generating Random Cave-Like Levels](http://www.roguebasin.com/index.php?title=Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels)
 
 ## License
 
