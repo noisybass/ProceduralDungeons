@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
 		ImGui::SFML::Update(window, deltaClock.restart());
 
-		ImGui::Begin("Map Values"); // begin window
+		ImGui::Begin("Map Values", NULL, ImGuiWindowFlags_AlwaysAutoResize); // begin window
 
 		// Window title text edit
 		ImGui::InputInt("Fill Probability", &fillProbability, 5);
