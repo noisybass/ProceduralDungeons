@@ -9,6 +9,9 @@ Procedural Map Generator
  - **[ImGUI > 1.50](https://github.com/ocornut/imgui)** as graphical user interface library
  - **[ImGui + SFML](https://github.com/eliasdaler/imgui-sfml)** as binding between SFML and ImGUI
 
+## References
+
+ - [Cellular Automata Method for Generating_Random_Cave-Like Levels](http://www.roguebasin.com/index.php?title=Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels)
 
 ## License
 
