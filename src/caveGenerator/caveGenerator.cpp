@@ -6,8 +6,8 @@
 
 namespace ProceduralCaves
 {
-	CaveGenerator::CaveGenerator() 
-		: _width{ 10 }, _height{ 10 }, _fillProbability{ 50 }, _smoothing{ 5 }
+	CaveGenerator::CaveGenerator()
+		: _width{ 10 }, _height{ 10 }, _fillProbability{ 50 }, _autoSmoothing{ false }, _smoothing{ 5 }
 	{
 		_cave = std::vector < std::vector<int>>(_width);
 		for (int i = 0; i < _width; ++i)
@@ -16,8 +16,8 @@ namespace ProceduralCaves
 		}
 	}
 
-	CaveGenerator::CaveGenerator(int width, int height, int fillProbability, int smoothing) 
-		: _width{ width }, _height{ height }, _fillProbability{ fillProbability }, _smoothing{ smoothing }
+	CaveGenerator::CaveGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing) 
+		: _width{ width }, _height{ height }, _fillProbability{ fillProbability }, _autoSmoothing{ autoSmoothing }, _smoothing{ smoothing }
 	{
 		_cave = std::vector < std::vector<int>>(_width);
 		for (int i = 0; i < _width; ++i)
@@ -45,15 +45,16 @@ namespace ProceduralCaves
 					_cave[i][j] = (random < _fillProbability) ? 1 : 0;
 				}
 
-		for (int i = 0; i < _smoothing; ++i)
-		{
-			SmoothMap();
-		}
+		if (_autoSmoothing)
+			for (int i = 0; i < _smoothing; ++i)
+			{
+				SmoothMap();
+			}
 
 		return _cave;
 	}
 
-	void CaveGenerator::SmoothMap()
+	std::vector<std::vector<int>> CaveGenerator::SmoothMap()
 	{
 		std::vector<std::vector<int>> newCave(_cave);
 
@@ -61,33 +62,56 @@ namespace ProceduralCaves
 		{
 			for (int j = 0; j < _height; ++j)
 			{
-				unsigned int neighbors = GetNeighborsNumber(i, j);
+				//int neighbors_1 = GetNeighborsNumber(i, j, 1, 1);
+				//int neighbors_2 = GetNeighborsNumber(i, j, 2, 2);
 
-				if (neighbors > 4)
+				//if (neighbors_1 >= 5 || neighbors_2 == 0)
+				//	newCave[i][j] = 1;
+				//else
+				//	newCave[i][j] = 0;
+
+				//int neighbors_1 = GetNeighborsNumber(i, j, 1, 1);
+
+				//if (_cave[i][j])
+				//{
+				//	if (neighbors_1 >= 4)
+				//		newCave[i][j] = 1;
+				//	else if (neighbors_1 < 2)
+				//		newCave[i][j] = 0;
+				//}
+				//else
+				//{
+				//	if (neighbors_1 >= 5)
+				//		newCave[i][j] = 1;
+				//}
+
+				int neighbors_1 = GetNeighborsNumber(i, j, 1, 1);
+				if (neighbors_1 > 4)
 					newCave[i][j] = 1;
-				else if (neighbors < 4)
+				else if (neighbors_1 < 4)
 					newCave[i][j] = 0;
 
 			}
 		}
 
 		_cave = newCave;
+		return _cave;
 	}
 
-	int CaveGenerator::GetNeighborsNumber(int row, int column) const
+	int CaveGenerator::GetNeighborsNumber(int x, int y, int stepX, int stepY) const
 	{
 		unsigned int neighbors = 0;
 
-		int minRow = row - 1;
-		int maxRow = row + 1;
-		int minColumn = column - 1;
-		int maxColumn = column + 1;
+		int minX = x - stepX;
+		int maxX = x + stepX;
+		int minY = y - stepY;
+		int maxY = y + stepY;
 
-		for (int i = minRow; i <= maxRow; ++i)
-			for (int j = minColumn; j <= maxColumn; ++j)
-				if (i >= 0 && i < _width && j >= 0 && j < _height)
+		for (int i = minX; i <= maxX; ++i)
+			for (int j = minY; j <= maxY; ++j)
+				if (!IsOutOfBounds(i, j))
 				{
-					if (i != row || j != column)
+					if (i != x || j != y)
 					{
 						neighbors += _cave[i][j];
 					}
@@ -97,6 +121,11 @@ namespace ProceduralCaves
 				}
 
 		return neighbors;
+	}
+
+	bool CaveGenerator::IsOutOfBounds(int x, int y) const
+	{
+		return x < 0 || x >= _width || y < 0 || y >= _height;
 	}
 
 

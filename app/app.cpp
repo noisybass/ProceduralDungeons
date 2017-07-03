@@ -12,11 +12,12 @@
 
 int main(int argc, char **argv)
 {
-	int mapWidth = 80;
-	int mapHeight = 80;
-	float cellSize = 10.0f;
-	int fillProbability = 50;
-	int smoothing = 3;
+	int mapWidth = 50;
+	int mapHeight = 50;
+	float cellSize = 20.0f;
+	int fillProbability = 45;
+	int smoothing = 5;
+	bool autoSmoothing = false;
 
 	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize), mapHeight*static_cast<int>(cellSize)), "Procedural Map Generator");
 	ImGui::SFML::Init(window);
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ProceduralCaves::CaveGenerator generator{ mapWidth, mapHeight, fillProbability, smoothing };
+	ProceduralCaves::CaveGenerator generator{ mapWidth, mapHeight, fillProbability, autoSmoothing, smoothing };
 
 	std::vector<std::vector<int>> map = generator.GenerateMap();
 
@@ -50,9 +51,6 @@ int main(int argc, char **argv)
 	//	std::cout << std::endl;
 	//}
 
-	sf::Color bgColor;
-	float color[3] = { 0.f, 0.f, 0.f };
-	char windowTitle[255] = "ImGui + SFML = <3";
 	sf::Clock deltaClock;
 
 	while (window.isOpen())
@@ -76,12 +74,19 @@ int main(int argc, char **argv)
 		// Window title text edit
 		ImGui::InputInt("Fill Probability", &fillProbability, 5);
 		ImGui::InputInt("Smoothing", &smoothing);
+		ImGui::Checkbox("Auto Smooth", &autoSmoothing);
+
+		if (ImGui::Button("Smooth Map")) {
+			map = generator.SmoothMap();
+		}
 
 		if (ImGui::Button("Generate New Map")) {
 			generator.SetFillProbability(fillProbability);
+			generator.SetAutoSmoothing(autoSmoothing);
 			generator.SetSmoothing(smoothing);
 			map = generator.GenerateMap();
 		}
+
 		ImGui::End(); // end window
 
 		window.clear();
