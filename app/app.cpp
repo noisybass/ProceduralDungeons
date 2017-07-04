@@ -12,12 +12,14 @@
 
 int main(int argc, char **argv)
 {
-	int mapWidth = 50;
-	int mapHeight = 50;
-	float cellSize = 20.0f;
+	int mapWidth = 200;
+	int mapHeight = 100;
+	float cellSize = 5.0f;
 	int fillProbability = 45;
 	int smoothing = 5;
-	bool autoSmoothing = false;
+	bool autoSmoothing = true;
+	int wallThresholdSize = 50;
+	int roomThresholdSize = 50;
 
 	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize), mapHeight*static_cast<int>(cellSize)), "Procedural Map Generator");
 	ImGui::SFML::Init(window);
@@ -85,6 +87,18 @@ int main(int argc, char **argv)
 			generator.SetAutoSmoothing(autoSmoothing);
 			generator.SetSmoothing(smoothing);
 			map = generator.GenerateMap();
+		}
+
+		ImGui::InputInt("Wall Threshold Size", &wallThresholdSize, 10);
+
+		if (ImGui::Button("Clean Map Walls")) {
+			map = generator.CleanMapWalls(wallThresholdSize);
+		}
+
+		ImGui::InputInt("Room Threshold Size", &roomThresholdSize, 10);
+
+		if (ImGui::Button("Clean Map Rooms")) {
+			map = generator.CleanMapRooms(roomThresholdSize);
 		}
 
 		ImGui::End(); // end window
