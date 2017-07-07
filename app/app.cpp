@@ -12,10 +12,10 @@
 
 int main(int argc, char **argv)
 {
-	int mapWidth = 200;
-	int mapHeight = 100;
-	float cellSize = 5.0f;
-	int fillProbability = 45;
+	int mapWidth = 100;
+	int mapHeight = 50;
+	float cellSize = 10.0f;
+	int fillProbability = 55;
 	int smoothing = 5;
 	bool autoSmoothing = true;
 	int wallThresholdSize = 50;
@@ -99,6 +99,10 @@ int main(int argc, char **argv)
 
 		if (ImGui::Button("Clean Map Rooms")) {
 			map = generator.CleanMapRooms(roomThresholdSize);
+		}
+
+		if (ImGui::Button("Clean And Connect Map Rooms")) {
+			map = generator.CleanAndConnectMapRooms(roomThresholdSize);
 		}
 
 		ImGui::End(); // end window
