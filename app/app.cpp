@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	int wallThresholdSize = 50;
 	int roomThresholdSize = 50;
 
-	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize), mapHeight*static_cast<int>(cellSize)), "Procedural Map Generator");
+	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize) + 200, mapHeight*static_cast<int>(cellSize) + 200), "Procedural Map Generator");
 	ImGui::SFML::Init(window);
 
 	std::vector<std::vector<sf::CircleShape>> graphicMap;
@@ -113,7 +113,8 @@ int main(int argc, char **argv)
 		{
 			for (int j = 0; j < mapHeight; ++j)
 			{
-				graphicMap[i][j].setPosition(i*cellSize + square.getRadius() - 2.0f, j*cellSize + square.getRadius() - 2.0f);
+				graphicMap[i][j].setPosition(window.getSize().x/2 - (mapWidth*cellSize)/2 + i*cellSize + square.getRadius(), 
+											 window.getSize().y/2 - (mapHeight*cellSize)/2 + j*cellSize + square.getRadius());
 
 				if (map[i][j] == 1)
 					graphicMap[i][j].setFillColor(sf::Color(69, 115, 133));

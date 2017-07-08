@@ -19,11 +19,14 @@ namespace ProceduralCaves
 		std::vector<Cell> cells;
 		std::vector<Cell> edges;
 		std::vector<Room> connectedRooms;
+		bool isMainRoom;
+		bool isConnectedToMainRoom;
 
 		Room();
 		Room(unsigned int id, std::vector<Cell> roomCells, Map map);
 
 		bool IsConnected(Room other) const;
+		void ConnectToMainRoom();
 	};
 
 	class CaveGenerator
@@ -57,9 +60,9 @@ namespace ProceduralCaves
 		std::vector<Cell> GetRegionCells(int startX, int startY) const;
 		std::vector<std::vector<Cell>> GetRegions(int cellType) const;
 
-		void ConnectClosestRooms(std::vector<Room> rooms);
-		void CreatePassage(Room roomA, Room roomB, Cell cellA, Cell cellB);
-		void ConnectRooms(Room a, Room b) const;
+		void ConnectClosestRooms(std::vector<Room> rooms, bool forceConnectionToMainRoom);
+		void CreatePassage(Room* roomA, Room* roomB, Cell cellA, Cell cellB);
+		void ConnectRooms(Room* a, Room* b) const;
 		std::vector<Cell> GetLineBetweenCells(Cell from, Cell to) const;
 
 	}; // class CaveGenerator

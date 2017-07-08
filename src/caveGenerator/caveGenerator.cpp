@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 namespace ProceduralCaves
 {
@@ -11,14 +12,14 @@ namespace ProceduralCaves
 
 	Cell::Cell(int a, int b) : x{ a }, y{ b } {}
 
-	Room::Room() : roomId{ 0 }
+	Room::Room() : roomId{ 0 }, isMainRoom{ false }, isConnectedToMainRoom{ false }
 	{
 		cells = std::vector<Cell>();
 		edges = std::vector<Cell>();
 		connectedRooms = std::vector<Room>();
 	}
 
-	Room::Room(unsigned int id, std::vector<Cell> roomCells, Map map) : roomId{ id }
+	Room::Room(unsigned int id, std::vector<Cell> roomCells, Map map) : roomId{ id }, isMainRoom{ false }, isConnectedToMainRoom{ false }
 	{
 		cells = roomCells;
 		edges = std::vector<Cell>();
@@ -34,8 +35,7 @@ namespace ProceduralCaves
 					if (map[x][y])
 						edges.push_back(cell);
 				}
-			}
-				
+			}			
 		}
 	}
 
@@ -48,6 +48,19 @@ namespace ProceduralCaves
 				found = true;
 		}
 		return found;
+	}
+
+	void Room::ConnectToMainRoom()
+	{
+		if (!isConnectedToMainRoom)
+		{
+			isConnectedToMainRoom = true;
+
+			for (Room room : connectedRooms)
+			{
+				room.ConnectToMainRoom();
+			}
+		}
 	}
 
 	CaveGenerator::CaveGenerator()
@@ -256,54 +269,92 @@ namespace ProceduralCaves
 			}
 		}
 
-		ConnectClosestRooms(survivingRooms);
+		std::sort(survivingRooms.begin(), survivingRooms.end(), [](Room a, Room b) {
+			return a.cells.size() > b.cells.size();
+		});
+		survivingRooms[0].isMainRoom = true;
+		survivingRooms[0].isConnectedToMainRoom = true;
+
+		ConnectClosestRooms(survivingRooms, false);
 
 		return _map;
 	}
 
-	void CaveGenerator::ConnectClosestRooms(std::vector<Room> rooms)
+	void CaveGenerator::ConnectClosestRooms(std::vector<Room> rooms, bool forceConnectionToMainRoom)
 	{
+		std::vector<Room> notConnected;
+		std::vector<Room> connected;
+
 		int minDistance = _width*_width + _height*_height;
 		Cell bestCellA;
 		Cell bestCellB;
-		Room bestRoomA;
-		Room bestRoomB;
+		int bestRoomA;
+		int bestRoomB;
 		bool connectionFound = false;
 
-		for (Room roomA : rooms)
+		if (forceConnectionToMainRoom) 
 		{
-			connectionFound = false;
-			minDistance = _width*_width + _height*_height;
-			for (Room roomB : rooms)
+			for (Room room : rooms) {
+				if (room.isConnectedToMainRoom)
+					connected.push_back(room);
+				else
+					notConnected.push_back(room);
+			}
+		}
+		else {
+			connected = rooms;
+			notConnected = rooms;
+		}
+
+		for (int i = 0; i < notConnected.size(); ++i)
+		{
+			if (!forceConnectionToMainRoom)
 			{
-				if (roomA.roomId != roomB.roomId && !roomA.IsConnected(roomB))
+				connectionFound = false;
+				minDistance = _width*_width + _height*_height;
+			}
+
+			//if (!notConnected[i].connectedRooms.size() > 0)
+			//{
+				for (int j = 0; j < connected.size(); ++j)
 				{
-					for (Cell edgeA : roomA.edges)
-					for (Cell edgeB : roomB.edges)
+					if (notConnected[i].roomId != connected[j].roomId && !notConnected[i].IsConnected(connected[j]))
 					{
-						int dist = (edgeA.x - edgeB.x) * (edgeA.x - edgeB.x) + (edgeA.y - edgeB.y) * (edgeA.y - edgeB.y);
-
-						if (dist < minDistance)
+						for (Cell edgeA : notConnected[i].edges)
+						for (Cell edgeB : connected[j].edges)
 						{
-							minDistance = dist;
-							connectionFound = true;
+							int dist = (edgeA.x - edgeB.x) * (edgeA.x - edgeB.x) + (edgeA.y - edgeB.y) * (edgeA.y - edgeB.y);
 
-							bestCellA = edgeA;
-							bestCellB = edgeB;
-							bestRoomA = roomA;
-							bestRoomB = roomB;
+							if (dist < minDistance || !connectionFound)
+							{
+								minDistance = dist;
+								connectionFound = true;
+
+								bestCellA = edgeA;
+								bestCellB = edgeB;
+								bestRoomA = i;
+								bestRoomB = j;
+							}
 						}
 					}
 				}
-			}
-
+			//}
 			if (connectionFound)
-				CreatePassage(roomA, bestRoomB, bestCellA, bestCellB);
+				CreatePassage(&rooms[bestRoomA], &rooms[bestRoomB], bestCellA, bestCellB);
+		}
+
+		//if (connectionFound && forceConnectionToMainRoom) {
+		//	CreatePassage(&rooms[bestRoomA], &rooms[bestRoomB], bestCellA, bestCellB);
+		//	ConnectClosestRooms(rooms, true);
+		//}
+
+		if (!forceConnectionToMainRoom) {
+			ConnectClosestRooms(rooms, true);
 		}
 		
 	}
 
-	void CaveGenerator::CreatePassage(Room roomA, Room roomB, Cell cellA, Cell cellB)
+	void CaveGenerator::CreatePassage(Room* roomA, Room* roomB, Cell cellA, Cell cellB)
 	{
 		ConnectRooms(roomA, roomB);
 
@@ -330,10 +381,15 @@ namespace ProceduralCaves
 		}
 	}
 
-	void CaveGenerator::ConnectRooms(Room a, Room b) const
+	void CaveGenerator::ConnectRooms(Room* a, Room* b) const
 	{
-		a.connectedRooms.push_back(b);
-		b.connectedRooms.push_back(a);
+		if (a->isConnectedToMainRoom)
+			b->ConnectToMainRoom();
+		else if (b->isConnectedToMainRoom)
+			a->ConnectToMainRoom();
+			
+		a->connectedRooms.push_back(*b);
+		b->connectedRooms.push_back(*a);
 	}
 
 	std::vector<Cell> CaveGenerator::GetLineBetweenCells(Cell from, Cell to) const
@@ -391,8 +447,6 @@ namespace ProceduralCaves
 				gradientAccumulation -= longDist;
 			}
 		}
-
-
 
 		return line;
 	}
