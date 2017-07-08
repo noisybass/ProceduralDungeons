@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	int mapWidth = 100;
 	int mapHeight = 50;
 	float cellSize = 10.0f;
-	int fillProbability = 55;
+	int fillPercentage = 55;
 	int smoothing = 5;
 	bool autoSmoothing = true;
 	int wallThresholdSize = 50;
@@ -39,8 +39,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ProceduralCaves::CellularAutomataGenerator caGenerator{ mapWidth, mapHeight, fillProbability, autoSmoothing, smoothing };
-	ProceduralCaves::RandomWalkGenerator rwGenerator{ mapWidth, mapHeight };
+	ProceduralCaves::CellularAutomataGenerator caGenerator{ mapWidth, mapHeight, fillPercentage, autoSmoothing, smoothing };
+	ProceduralCaves::RandomWalkGenerator rwGenerator{ mapWidth, mapHeight, fillPercentage };
 
 	ProceduralCaves::Map map;
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
 		if (item == 0)
 		{
-			ImGui::InputInt("Fill Probability", &fillProbability, 5);
+			ImGui::InputInt("Fill Percentage", &fillPercentage, 5);
 			ImGui::InputInt("Smoothing", &smoothing);
 			ImGui::Checkbox("Auto Smooth", &autoSmoothing);
 
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 			}
 
 			if (ImGui::Button("Generate New Map")) {
-				caGenerator.SetFillProbability(fillProbability);
+				caGenerator.SetFillPercentage(fillPercentage);
 				caGenerator.SetAutoSmoothing(autoSmoothing);
 				caGenerator.SetSmoothing(smoothing);
 				map = caGenerator.GenerateMap();
@@ -105,8 +105,17 @@ int main(int argc, char **argv)
 		}
 		else if (item == 1)
 		{
+			ImGui::InputInt("Fill Percentage", &fillPercentage, 5);
+
 			if (ImGui::Button("Generate New Map")) {
+				rwGenerator.SetFillPercentage(fillPercentage);
 				map = rwGenerator.GenerateMap();
+			}
+
+			ImGui::InputInt("Wall Threshold Size", &wallThresholdSize, 1, 5);
+
+			if (ImGui::Button("Clean Map Walls")) {
+				map = rwGenerator.CleanMapWalls(wallThresholdSize);
 			}
 		}
 

@@ -9,7 +9,7 @@
 namespace ProceduralCaves
 {
 	CellularAutomataGenerator::CellularAutomataGenerator()
-		: _width{ 10 }, _height{ 10 }, _fillProbability{ 50 }, _autoSmoothing{ false }, _smoothing{ 5 }
+		: _width{ 10 }, _height{ 10 }, _fillPercentage{ 50 }, _autoSmoothing{ false }, _smoothing{ 5 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -18,8 +18,8 @@ namespace ProceduralCaves
 		}
 	}
 
-	CellularAutomataGenerator::CellularAutomataGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing)
-		: _width{ width }, _height{ height }, _fillProbability{ fillProbability }, _autoSmoothing{ autoSmoothing }, _smoothing{ smoothing }
+	CellularAutomataGenerator::CellularAutomataGenerator(int width, int height, int fillPercentage, bool autoSmoothing, int smoothing)
+		: _width{ width }, _height{ height }, _fillPercentage{ fillPercentage }, _autoSmoothing{ autoSmoothing }, _smoothing{ smoothing }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -45,7 +45,7 @@ namespace ProceduralCaves
 			else
 			{
 				random = min + (std::rand() % (max - min + 1));
-				_map[i][j] = (random < _fillProbability) ? 1 : 0;
+				_map[i][j] = (random < _fillPercentage) ? 1 : 0;
 			}
 		}
 

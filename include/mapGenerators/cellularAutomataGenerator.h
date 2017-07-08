@@ -8,7 +8,7 @@ namespace ProceduralCaves
 	{
 	public:
 		CellularAutomataGenerator();
-		CellularAutomataGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing);
+		CellularAutomataGenerator(int width, int height, int fillPercentage, bool autoSmoothing, int smoothing);
 
 		Map GenerateMap();
 		Map SmoothMap();
@@ -16,7 +16,7 @@ namespace ProceduralCaves
 		Map CleanMapRooms(int roomThresholdSize);
 		Map CleanAndConnectMapRooms(int roomThresholdSize);
 		
-		void SetFillProbability(int newFillProbability) { _fillProbability = newFillProbability; }
+		void SetFillPercentage(int newFillPercentage) { _fillPercentage = newFillPercentage; }
 		void SetAutoSmoothing(bool newAutoSmoothing) { _autoSmoothing = newAutoSmoothing; }
 		void SetSmoothing(int newSmoothing) { _smoothing = newSmoothing; }
 	private:
@@ -24,7 +24,7 @@ namespace ProceduralCaves
 		Map _map; // 0 = empty, 1 = wall
 		int _width;
 		int _height;
-		int _fillProbability;
+		int _fillPercentage;
 
 		bool _autoSmoothing;
 		int _smoothing;
