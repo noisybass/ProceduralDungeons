@@ -1,39 +1,14 @@
+#include "proceduralCaves.h"
+
 #include <vector>
 
 namespace ProceduralCaves
 {
-	typedef std::vector<std::vector<int>> Map;
-	struct Cell
+	class CellularAutomataGenerator
 	{
 	public:
-		int x, y;
-
-		Cell();
-		Cell(int a, int b);
-	};
-
-	struct Room
-	{
-	public:
-		unsigned int roomId;
-		std::vector<Cell> cells;
-		std::vector<Cell> edges;
-		std::vector<Room> connectedRooms;
-		bool isMainRoom;
-		bool isConnectedToMainRoom;
-
-		Room();
-		Room(unsigned int id, std::vector<Cell> roomCells, Map map);
-
-		bool IsConnected(Room other) const;
-		void ConnectToMainRoom();
-	};
-
-	class CaveGenerator
-	{
-	public:
-		CaveGenerator();
-		CaveGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing);
+		CellularAutomataGenerator();
+		CellularAutomataGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing);
 
 		Map GenerateMap();
 		Map SmoothMap();

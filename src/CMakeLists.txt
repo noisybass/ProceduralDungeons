@@ -1,1 +1,1 @@
-add_subdirectory(caveGenerator)
+add_subdirectory(mapGenerators)

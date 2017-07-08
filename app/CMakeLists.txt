@@ -1,7 +1,3 @@
-#add_executable(proceduralCaves app.cpp)
-
-
-
 include_directories("${CMAKE_SOURCE_DIR}/libs/imgui-1.50")
 include_directories("${CMAKE_SOURCE_DIR}/libs/imgui-SFML")
 set(SOURCES ${CMAKE_SOURCE_DIR}/libs/imgui-1.50/imgui.cpp ${CMAKE_SOURCE_DIR}/libs/imgui-1.50/imgui_demo.cpp ${CMAKE_SOURCE_DIR}/libs/imgui-1.50/imgui_draw.cpp ${CMAKE_SOURCE_DIR}/libs/imgui-sfml/imgui-SFML.cpp app.cpp)
@@ -16,7 +12,7 @@ set(SFML_ROOT "${CMAKE_SOURCE_DIR}/libs/SFML-2.4.2")
 find_package(SFML 2 REQUIRED network audio graphics window system)
 if(SFML_FOUND)
   include_directories(${SFML_INCLUDE_DIR})
-  target_link_libraries(proceduralCaves caveGenerator ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
+  target_link_libraries(proceduralCaves mapGenerators ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 
   ADD_CUSTOM_COMMAND (TARGET proceduralCaves POST_BUILD
   # todo: check if debug and release folder exist

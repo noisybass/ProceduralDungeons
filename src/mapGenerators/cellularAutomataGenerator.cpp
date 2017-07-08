@@ -1,4 +1,4 @@
-#include "caveGenerator\caveGenerator.h"
+#include "mapGenerators\cellularAutomataGenerator.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -8,62 +8,7 @@
 
 namespace ProceduralCaves
 {
-	Cell::Cell() : x{ 0 }, y{ 0 } {}
-
-	Cell::Cell(int a, int b) : x{ a }, y{ b } {}
-
-	Room::Room() : roomId{ 0 }, isMainRoom{ false }, isConnectedToMainRoom{ false }
-	{
-		cells = std::vector<Cell>();
-		edges = std::vector<Cell>();
-		connectedRooms = std::vector<Room>();
-	}
-
-	Room::Room(unsigned int id, std::vector<Cell> roomCells, Map map) : roomId{ id }, isMainRoom{ false }, isConnectedToMainRoom{ false }
-	{
-		cells = roomCells;
-		edges = std::vector<Cell>();
-		connectedRooms = std::vector<Room>();
-
-		for (Cell cell : cells)
-		{
-			for (int x = cell.x - 1; x <= cell.x + 1; ++x)
-			for (int y = cell.y - 1; y <= cell.y + 1; ++y)
-			{
-				if (x == cell.x || y == cell.y)
-				{
-					if (map[x][y])
-						edges.push_back(cell);
-				}
-			}			
-		}
-	}
-
-	bool Room::IsConnected(Room room) const
-	{
-		bool found = false;
-		for (auto it = connectedRooms.begin(); !found && it != connectedRooms.end(); ++it)
-		{
-			if (it->roomId == room.roomId)
-				found = true;
-		}
-		return found;
-	}
-
-	void Room::ConnectToMainRoom()
-	{
-		if (!isConnectedToMainRoom)
-		{
-			isConnectedToMainRoom = true;
-
-			for (Room room : connectedRooms)
-			{
-				room.ConnectToMainRoom();
-			}
-		}
-	}
-
-	CaveGenerator::CaveGenerator()
+	CellularAutomataGenerator::CellularAutomataGenerator()
 		: _width{ 10 }, _height{ 10 }, _fillProbability{ 50 }, _autoSmoothing{ false }, _smoothing{ 5 }
 	{
 		_map = Map(_width);
@@ -73,7 +18,7 @@ namespace ProceduralCaves
 		}
 	}
 
-	CaveGenerator::CaveGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing) 
+	CellularAutomataGenerator::CellularAutomataGenerator(int width, int height, int fillProbability, bool autoSmoothing, int smoothing)
 		: _width{ width }, _height{ height }, _fillProbability{ fillProbability }, _autoSmoothing{ autoSmoothing }, _smoothing{ smoothing }
 	{
 		_map = Map(_width);
@@ -83,7 +28,7 @@ namespace ProceduralCaves
 		}
 	}
 
-	Map CaveGenerator::GenerateMap()
+	Map CellularAutomataGenerator::GenerateMap()
 	{
 		std::srand(static_cast<unsigned int>(std::time(0))); // use current time as seed for random generator
 		int min = 0;
@@ -111,7 +56,7 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-	Map CaveGenerator::SmoothMap()
+	Map CellularAutomataGenerator::SmoothMap()
 	{
 		Map newCave(_map);
 
@@ -131,7 +76,7 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-	int CaveGenerator::GetNeighborsNumber(int x, int y, int stepX, int stepY) const
+	int CellularAutomataGenerator::GetNeighborsNumber(int x, int y, int stepX, int stepY) const
 	{
 		unsigned int neighbors = 0;
 
@@ -155,12 +100,12 @@ namespace ProceduralCaves
 		return neighbors;
 	}
 
-	bool CaveGenerator::IsOutOfBounds(int x, int y) const
+	bool CellularAutomataGenerator::IsOutOfBounds(int x, int y) const
 	{
 		return x < 0 || x >= _width || y < 0 || y >= _height;
 	}
 
-	std::vector<Cell> CaveGenerator::GetRegionCells(int startX, int startY) const
+	std::vector<Cell> CellularAutomataGenerator::GetRegionCells(int startX, int startY) const
 	{
 		std::vector<Cell> cells;
 		std::vector<std::vector<bool>> processedCells;
@@ -196,7 +141,7 @@ namespace ProceduralCaves
 		return cells;
 	}
 
-	std::vector<std::vector<Cell>> CaveGenerator::GetRegions(int cellType) const
+	std::vector<std::vector<Cell>> CellularAutomataGenerator::GetRegions(int cellType) const
 	{
 		std::vector<std::vector<Cell>> regions;
 		std::vector<std::vector<bool>> processedCells;
@@ -223,7 +168,7 @@ namespace ProceduralCaves
 		return regions;
 	}
 
-	Map CaveGenerator::CleanMapWalls(int wallThresholdSize)
+	Map CellularAutomataGenerator::CleanMapWalls(int wallThresholdSize)
 	{
 		std::vector<std::vector<Cell>> wallRegions = GetRegions(1);
 
@@ -235,7 +180,7 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-	Map CaveGenerator::CleanMapRooms(int roomThresholdSize)
+	Map CellularAutomataGenerator::CleanMapRooms(int roomThresholdSize)
 	{
 		std::vector<std::vector<Cell>> roomRegions = GetRegions(0);
 
@@ -249,7 +194,7 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-	Map CaveGenerator::CleanAndConnectMapRooms(int roomThresholdSize)
+	Map CellularAutomataGenerator::CleanAndConnectMapRooms(int roomThresholdSize)
 	{
 		std::vector<std::vector<Cell>> roomRegions = GetRegions(0);
 		std::vector<Room> survivingRooms;
@@ -280,7 +225,7 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-	void CaveGenerator::ConnectClosestRooms(std::vector<Room> rooms, bool forceConnectionToMainRoom)
+	void CellularAutomataGenerator::ConnectClosestRooms(std::vector<Room> rooms, bool forceConnectionToMainRoom)
 	{
 		std::vector<Room> notConnected;
 		std::vector<Room> connected;
@@ -354,7 +299,7 @@ namespace ProceduralCaves
 		
 	}
 
-	void CaveGenerator::CreatePassage(Room* roomA, Room* roomB, Cell cellA, Cell cellB)
+	void CellularAutomataGenerator::CreatePassage(Room* roomA, Room* roomB, Cell cellA, Cell cellB)
 	{
 		ConnectRooms(roomA, roomB);
 
@@ -381,7 +326,7 @@ namespace ProceduralCaves
 		}
 	}
 
-	void CaveGenerator::ConnectRooms(Room* a, Room* b) const
+	void CellularAutomataGenerator::ConnectRooms(Room* a, Room* b) const
 	{
 		if (a->isConnectedToMainRoom)
 			b->ConnectToMainRoom();
@@ -392,7 +337,7 @@ namespace ProceduralCaves
 		b->connectedRooms.push_back(*a);
 	}
 
-	std::vector<Cell> CaveGenerator::GetLineBetweenCells(Cell from, Cell to) const
+	std::vector<Cell> CellularAutomataGenerator::GetLineBetweenCells(Cell from, Cell to) const
 	{
 		std::vector<Cell> line;
 

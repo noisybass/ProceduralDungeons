@@ -1,4 +1,5 @@
-#include "caveGenerator\caveGenerator.h"
+#include "mapGenerators\cellularAutomataGenerator.h"
+#include "mapGenerators\randomWalkGenerator.h"
 
 #include "imgui.h"
 #include "imgui-SFML.h"
@@ -38,20 +39,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ProceduralCaves::CaveGenerator generator{ mapWidth, mapHeight, fillProbability, autoSmoothing, smoothing };
+	ProceduralCaves::CellularAutomataGenerator caGenerator{ mapWidth, mapHeight, fillProbability, autoSmoothing, smoothing };
+	ProceduralCaves::RandomWalkGenerator rwGenerator{ mapWidth, mapHeight };
 
-	std::vector<std::vector<int>> map = generator.GenerateMap();
+	ProceduralCaves::Map map;
 
-	// Print the map
-	//for (std::vector<int> row : map)
-	//{
-	//	for (int cell : row)
-	//	{
-	//		std::cout << ((cell == 1) ? "#" : " ");
-	//	}
-
-	//	std::cout << std::endl;
-	//}
 
 	sf::Clock deltaClock;
 
@@ -73,55 +65,71 @@ int main(int argc, char **argv)
 
 		ImGui::Begin("Map Values", NULL, ImGuiWindowFlags_AlwaysAutoResize); // begin window
 
-		// Window title text edit
-		ImGui::InputInt("Fill Probability", &fillProbability, 5);
-		ImGui::InputInt("Smoothing", &smoothing);
-		ImGui::Checkbox("Auto Smooth", &autoSmoothing);
+		// Select algorithm
+		//const char* items[] = { "Random Cellular Automata", "Drunkard's Wals" };
+		static int item = 0;
+		ImGui::Combo("Select Algorithm", &item, "Random Cellular Automata\0Drunkard's Walk");
 
-		if (ImGui::Button("Smooth Map")) {
-			map = generator.SmoothMap();
+		if (item == 0)
+		{
+			ImGui::InputInt("Fill Probability", &fillProbability, 5);
+			ImGui::InputInt("Smoothing", &smoothing);
+			ImGui::Checkbox("Auto Smooth", &autoSmoothing);
+
+			if (ImGui::Button("Smooth Map")) {
+				map = caGenerator.SmoothMap();
+			}
+
+			if (ImGui::Button("Generate New Map")) {
+				caGenerator.SetFillProbability(fillProbability);
+				caGenerator.SetAutoSmoothing(autoSmoothing);
+				caGenerator.SetSmoothing(smoothing);
+				map = caGenerator.GenerateMap();
+			}
+
+			ImGui::InputInt("Wall Threshold Size", &wallThresholdSize, 10);
+
+			if (ImGui::Button("Clean Map Walls")) {
+				map = caGenerator.CleanMapWalls(wallThresholdSize);
+			}
+
+			ImGui::InputInt("Room Threshold Size", &roomThresholdSize, 10);
+
+			if (ImGui::Button("Clean Map Rooms")) {
+				map = caGenerator.CleanMapRooms(roomThresholdSize);
+			}
+
+			if (ImGui::Button("Clean And Connect Map Rooms")) {
+				map = caGenerator.CleanAndConnectMapRooms(roomThresholdSize);
+			}
 		}
-
-		if (ImGui::Button("Generate New Map")) {
-			generator.SetFillProbability(fillProbability);
-			generator.SetAutoSmoothing(autoSmoothing);
-			generator.SetSmoothing(smoothing);
-			map = generator.GenerateMap();
-		}
-
-		ImGui::InputInt("Wall Threshold Size", &wallThresholdSize, 10);
-
-		if (ImGui::Button("Clean Map Walls")) {
-			map = generator.CleanMapWalls(wallThresholdSize);
-		}
-
-		ImGui::InputInt("Room Threshold Size", &roomThresholdSize, 10);
-
-		if (ImGui::Button("Clean Map Rooms")) {
-			map = generator.CleanMapRooms(roomThresholdSize);
-		}
-
-		if (ImGui::Button("Clean And Connect Map Rooms")) {
-			map = generator.CleanAndConnectMapRooms(roomThresholdSize);
+		else if (item == 1)
+		{
+			if (ImGui::Button("Generate New Map")) {
+				map = rwGenerator.GenerateMap();
+			}
 		}
 
 		ImGui::End(); // end window
 
 		window.clear();
 
-		for (int i = 0; i < mapWidth; ++i)
+		if (map.size() != 0)
 		{
-			for (int j = 0; j < mapHeight; ++j)
+			for (int i = 0; i < mapWidth; ++i)
 			{
-				graphicMap[i][j].setPosition(window.getSize().x/2 - (mapWidth*cellSize)/2 + i*cellSize + square.getRadius(), 
-											 window.getSize().y/2 - (mapHeight*cellSize)/2 + j*cellSize + square.getRadius());
+				for (int j = 0; j < mapHeight; ++j)
+				{
+					graphicMap[i][j].setPosition(window.getSize().x / 2 - (mapWidth*cellSize) / 2 + i*cellSize + square.getRadius(),
+						window.getSize().y / 2 - (mapHeight*cellSize) / 2 + j*cellSize + square.getRadius());
 
-				if (map[i][j] == 1)
-					graphicMap[i][j].setFillColor(sf::Color(69, 115, 133));
-				else
-					graphicMap[i][j].setFillColor(sf::Color(35, 35, 35));
+					if (map[i][j] == 1)
+						graphicMap[i][j].setFillColor(sf::Color(69, 115, 133));
+					else
+						graphicMap[i][j].setFillColor(sf::Color(35, 35, 35));
 
-				window.draw(graphicMap[i][j]);
+					window.draw(graphicMap[i][j]);
+				}
 			}
 		}
 
