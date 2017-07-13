@@ -1,0 +1,1 @@
+IF EXIST _build (rmdir /s /q _build)

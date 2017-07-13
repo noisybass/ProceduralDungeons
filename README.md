@@ -1,6 +1,54 @@
-# Procedural Caves
+# Procedural Dungeons
 
-Procedural Map Generator
+Different algorithm examples of procedural dungeons generation. 
+Currently implemented:
+* Cellular Automata Generator
+* Random Walk Generator (also known as Drunkard's Walk)
+
+## How to build the project
+
+This is the actual structure of the project:
+
+```
+.
+|--CMakeLists.txt
+|--app
+|   |--CMakeLists.txt
+|   |--app.cpp
+|--cmake_modules
+|   |--FindSFML.cmake
+|--include
+|   |--mapGenerators
+|      |--*.h
+|--src
+|   |--CMakeLists.txt
+|   |--mapGenerators
+|      |--CMakeLists.txt
+|      |--*.cpp
+|--libs
+|   |--imgui-1.50
+|   |--imgui-sfml
+|   |--SFML-2.4.2
+|--linuxBuild.sh
+|--linuxClean.sh
+|--macBuild.sh
+|--macClean.sh
+|--windowsBuild.bat
+|--windowsClean.bat
+```
+
+All you need to build the project is provide the **/libs** folder, that includes all the depenencies of the poject. You can download this dependencies from the links I provide below.
+
+In the project are included scripts for easy building and cleaning.
+
+### Windows - Visual Studio 12
+For building or cleaning the project execute <code> ./windowsBuild.bat </code> or <code> ./windowsClean.bat </code> in the root.
+
+### Linux - GCC
+For building or cleaning the project execute <code> sh ./linuxBuild.sh </code> or <code> sh ./linuxClean.sh </code> in the root.
+
+### OS X - XCode
+For building or cleaning the project execute <code> sh ./macBuild.sh </code> or <code> sh ./macClean.sh </code> in the root.
 
 ## Dependencies
 
