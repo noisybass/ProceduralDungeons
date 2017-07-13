@@ -6,10 +6,10 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	RandomWalkGenerator::RandomWalkGenerator()
-		: _width{ 10 }, _height{ 10 }, _fillPercentage{ 50 }, _totalFloorCells{ 0 }
+		: _width{ 10 }, _height{ 10 }, _fillPercentage{ 50 }, _totalFloorCells{ 0 }, _autoSmoothing{ false }, _smoothing{ 5 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -18,8 +18,8 @@ namespace ProceduralCaves
 		}
 	}
 
-	RandomWalkGenerator::RandomWalkGenerator(int width, int height, int fillPercentage)
-		: _width{ width }, _height{ height }, _fillPercentage{ fillPercentage }
+	RandomWalkGenerator::RandomWalkGenerator(int width, int height, int fillPercentage, bool autoSmoothing, int smoothing)
+		: _width{ width }, _height{ height }, _fillPercentage{ fillPercentage }, _autoSmoothing{ autoSmoothing }, _smoothing{ smoothing }
 	{
 		_totalFloorCells = (_width*_height*_fillPercentage) / 100;
 		_map = Map(_width);
@@ -61,8 +61,56 @@ namespace ProceduralCaves
 				}
 			}
 		}
+
+		if (_autoSmoothing)
+		for (int i = 0; i < _smoothing; ++i)
+			SmoothMap();
 		
 		return _map;
+	}
+
+	Map RandomWalkGenerator::SmoothMap()
+	{
+		Map newCave(_map);
+
+		for (int i = 0; i < _width; ++i)
+		for (int j = 0; j < _height; ++j)
+		{
+			int neighbors_1 = GetNeighborsNumber(i, j, 1, 1);
+
+			if (neighbors_1 > 4)
+				newCave[i][j] = 1;
+			else if (neighbors_1 < 4)
+				newCave[i][j] = 0;
+
+		}
+
+		_map = newCave;
+		return _map;
+	}
+
+	int RandomWalkGenerator::GetNeighborsNumber(int x, int y, int stepX, int stepY) const
+	{
+		unsigned int neighbors = 0;
+
+		int minX = x - stepX;
+		int maxX = x + stepX;
+		int minY = y - stepY;
+		int maxY = y + stepY;
+
+		for (int i = minX; i <= maxX; ++i)
+		for (int j = minY; j <= maxY; ++j)
+		{
+			if (!IsOutOfBounds(i, j))
+			{
+				if (i != x || j != y)
+					neighbors += _map[i][j];
+			}
+			else
+				neighbors++; // To increase the walls density
+		}
+
+		return neighbors;
 	}
 
 	Cell RandomWalkGenerator::GetNextCell(Cell currentCell, int direction)
@@ -173,4 +221,4 @@ namespace ProceduralCaves
 		return _map;
 	}
 
-} // namespace ProceduralCaves
+} // namespace ProceduralDungeons

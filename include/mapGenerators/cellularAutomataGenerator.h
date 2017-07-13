@@ -1,8 +1,8 @@
-#include "proceduralCaves.h"
+#include "dataStructures.h"
 
 #include <vector>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	class CellularAutomataGenerator
 	{
@@ -40,6 +40,6 @@ namespace ProceduralCaves
 		void ConnectRooms(Room* a, Room* b) const;
 		std::vector<Cell> GetLineBetweenCells(Cell from, Cell to) const;
 
-	}; // class CaveGenerator
+	}; // class CellularAutomataGenerator
 
-} // namespace ProceduralCaves
+} // namespace ProceduralDungeons

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	typedef std::vector<std::vector<int>> Map;
 
@@ -35,6 +35,17 @@ namespace ProceduralCaves
 
 	}; // struct Room
 
-} // namespace ProceduralCaves
+	struct Node
+	{
+	public:
+		int data;
+		Node* left;
+		Node* right;
+
+		Node();
+		Node(int v);
+	}; // struct Node
+
+} // namespace ProceduralDungeons
 
 #endif

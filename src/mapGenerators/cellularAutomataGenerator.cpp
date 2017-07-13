@@ -6,7 +6,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	CellularAutomataGenerator::CellularAutomataGenerator()
 		: _width{ 10 }, _height{ 10 }, _fillPercentage{ 50 }, _autoSmoothing{ false }, _smoothing{ 5 }
@@ -397,4 +397,4 @@ namespace ProceduralCaves
 	}
 
 
-} // namespace ProceduralCaves
+} // namespace ProceduralDungeons

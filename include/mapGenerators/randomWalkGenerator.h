@@ -1,19 +1,22 @@
-#include "proceduralCaves.h"
+#include "dataStructures.h"
 
 #include <vector>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	class RandomWalkGenerator
 	{
 	public:
 		RandomWalkGenerator();
-		RandomWalkGenerator(int width, int height, int fillPercentage);
+		RandomWalkGenerator(int width, int height, int fillPercentage, bool autoSmoothing, int smoothing);
 
 		Map GenerateMap();
+		Map SmoothMap();
 		Map CleanMapWalls(int wallThresholdSize);
 
 		void SetFillPercentage(int newFillPercentage) { _fillPercentage = newFillPercentage; _totalFloorCells = (_width*_height*_fillPercentage) / 100; }
+		void SetAutoSmoothing(bool newAutoSmoothing) { _autoSmoothing = newAutoSmoothing; }
+		void SetSmoothing(int newSmoothing) { _smoothing = newSmoothing; }
 	private:
 
 		Map _map; // 0 = empty, 1 = wall
@@ -22,6 +25,10 @@ namespace ProceduralCaves
 		int _fillPercentage;
 		int _totalFloorCells;
 
+		bool _autoSmoothing;
+		int _smoothing;
+
+		int GetNeighborsNumber(int x, int y, int stepX, int stepY) const;
 		bool IsOutOfBounds(int x, int y) const;
 		Cell GetNextCell(Cell currentCell, int direction);
 
@@ -30,4 +37,4 @@ namespace ProceduralCaves
 
 	}; // class RandomWalkGenerator
 
-} // namespace ProceduralCaves
+} // namespace ProceduralDungeons

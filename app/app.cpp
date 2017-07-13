@@ -1,5 +1,6 @@
 #include "mapGenerators\cellularAutomataGenerator.h"
 #include "mapGenerators\randomWalkGenerator.h"
+#include "mapGenerators\BSPGenerator.h"
 
 #include "imgui.h"
 #include "imgui-SFML.h"
@@ -13,9 +14,9 @@
 
 int main(int argc, char **argv)
 {
-	int mapWidth = 100;
-	int mapHeight = 50;
-	float cellSize = 10.0f;
+	int mapWidth = 200;
+	int mapHeight = 100;
+	float cellSize = 5.0f;
 	int fillPercentage = 55;
 	int smoothing = 5;
 	bool autoSmoothing = true;
@@ -39,10 +40,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ProceduralCaves::CellularAutomataGenerator caGenerator{ mapWidth, mapHeight, fillPercentage, autoSmoothing, smoothing };
-	ProceduralCaves::RandomWalkGenerator rwGenerator{ mapWidth, mapHeight, fillPercentage };
+	ProceduralDungeons::CellularAutomataGenerator caGenerator{ mapWidth, mapHeight, fillPercentage, autoSmoothing, smoothing };
+	ProceduralDungeons::RandomWalkGenerator rwGenerator{ mapWidth, mapHeight, fillPercentage, autoSmoothing, smoothing };
+	ProceduralDungeons::BSPGenerator bspGenerator{ mapWidth, mapHeight };
 
-	ProceduralCaves::Map map;
+	ProceduralDungeons::Map map;
 
 
 	sf::Clock deltaClock;
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
 		// Select algorithm
 		//const char* items[] = { "Random Cellular Automata", "Drunkard's Wals" };
 		static int item = 0;
-		ImGui::Combo("Select Algorithm", &item, "Random Cellular Automata\0Drunkard's Walk");
+		ImGui::Combo("Select Algorithm", &item, "Random Cellular Automata\0Drunkard's Walk\0BSP");
 
 		if (item == 0)
 		{
@@ -106,16 +108,30 @@ int main(int argc, char **argv)
 		else if (item == 1)
 		{
 			ImGui::InputInt("Fill Percentage", &fillPercentage, 5);
+			ImGui::InputInt("Smoothing", &smoothing);
+			ImGui::Checkbox("Auto Smooth", &autoSmoothing);
 
 			if (ImGui::Button("Generate New Map")) {
 				rwGenerator.SetFillPercentage(fillPercentage);
+				rwGenerator.SetAutoSmoothing(autoSmoothing);
+				rwGenerator.SetSmoothing(smoothing);
 				map = rwGenerator.GenerateMap();
+			}
+
+			if (ImGui::Button("Smooth Map")) {
+				map = rwGenerator.SmoothMap();
 			}
 
 			ImGui::InputInt("Wall Threshold Size", &wallThresholdSize, 1, 5);
 
 			if (ImGui::Button("Clean Map Walls")) {
 				map = rwGenerator.CleanMapWalls(wallThresholdSize);
+			}
+		}
+		else if (item == 2)
+		{
+			if (ImGui::Button("Generate New Map")) {
+				map = bspGenerator.GenerateMap();
 			}
 		}
 

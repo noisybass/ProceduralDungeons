@@ -1,4 +1,4 @@
-#include "mapGenerators\proceduralCaves.h"
+#include "mapGenerators\dataStructures.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -6,7 +6,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace ProceduralCaves
+namespace ProceduralDungeons
 {
 	Cell::Cell() : x{ 0 }, y{ 0 } {}
 
@@ -63,4 +63,38 @@ namespace ProceduralCaves
 		}
 	}
 
-} // namespace ProceduralCaves
+	Node::Node() : data{ 0 }, left{ nullptr }, right{ nullptr } {}
+
+	Node::Node(int v) : data{ v }, left{ nullptr }, right{ nullptr } {}
+
+	Node* Find(Node* node, int data)
+	{
+		if (!node)
+			return nullptr;
+
+		if (node->data == data)
+			return node;
+
+		if (node->data > data)
+			return Find(node->left, data);
+		else
+			return Find(node->right, data);
+
+	}
+
+	void Insert(Node* node, int data)
+	{
+		if (!node)
+		{
+			node = new Node(data);
+		}
+		else
+		{
+			if (node->data > data)
+				Insert(node->left, data);
+			else
+				Insert(node->right, data);
+		}
+	}
+
+} // namespace ProceduralDungeons
