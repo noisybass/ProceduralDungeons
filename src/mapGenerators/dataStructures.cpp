@@ -39,7 +39,7 @@ namespace ProceduralDungeons
 		}
 	}
 
-	bool Room::IsConnected(Room room) const
+	bool Room::IsConnected(const Room& room) const
 	{
 		bool found = false;
 		for (auto it = connectedRooms.begin(); !found && it != connectedRooms.end(); ++it)
@@ -63,38 +63,27 @@ namespace ProceduralDungeons
 		}
 	}
 
-	Node::Node() : data{ 0 }, left{ nullptr }, right{ nullptr } {}
-
-	Node::Node(int v) : data{ v }, left{ nullptr }, right{ nullptr } {}
-
-	Node* Find(Node* node, int data)
+	BSPRoom::BSPRoom() 
+		: x{ 0 }, y{ 0 }, width{ 0 }, height{ 0 }, roomId{ 0 } 
 	{
-		if (!node)
-			return nullptr;
-
-		if (node->data == data)
-			return node;
-
-		if (node->data > data)
-			return Find(node->left, data);
-		else
-			return Find(node->right, data);
-
+		connectedRooms = std::vector<int>();
 	}
 
-	void Insert(Node* node, int data)
+	BSPRoom::BSPRoom(int roomX, int roomY, int roomWidth, int roomHeight) 
+		: x{ roomX }, y{ roomY }, width{ roomWidth }, height{ roomHeight }, roomId{ 0 } 
 	{
-		if (!node)
+		connectedRooms = std::vector<int>();
+	}
+
+	bool BSPRoom::IsConnected(int room) const
+	{
+		bool found = false;
+		for (auto it = connectedRooms.begin(); !found && it != connectedRooms.end(); ++it)
 		{
-			node = new Node(data);
+			if (*it == room)
+				found = true;
 		}
-		else
-		{
-			if (node->data > data)
-				Insert(node->left, data);
-			else
-				Insert(node->right, data);
-		}
+		return found;
 	}
 
 } // namespace ProceduralDungeons

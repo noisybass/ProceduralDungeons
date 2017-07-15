@@ -150,6 +150,8 @@ int main(int argc, char **argv)
 
 					if (map[i][j] == 1)
 						graphicMap[i][j].setFillColor(sf::Color(69, 115, 133));
+					else if (map[i][j] == 2)
+						graphicMap[i][j].setFillColor(sf::Color(255, 115, 133));
 					else
 						graphicMap[i][j].setFillColor(sf::Color(35, 35, 35));
 

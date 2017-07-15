@@ -30,21 +30,26 @@ namespace ProceduralDungeons
 		Room();
 		Room(unsigned int id, std::vector<Cell> roomCells, Map map);
 
-		bool IsConnected(Room other) const;
+		bool IsConnected(const Room& other) const;
 		void ConnectToMainRoom();
 
 	}; // struct Room
 
-	struct Node
+	struct BSPRoom
 	{
 	public:
-		int data;
-		Node* left;
-		Node* right;
+		int x;
+		int y;
+		int width;
+		int height;
+		int roomId;
+		std::vector<int> connectedRooms;
 
-		Node();
-		Node(int v);
-	}; // struct Node
+		BSPRoom();
+		BSPRoom(int roomX, int roomY, int roomWidth, int roomHeight);
+
+		bool IsConnected(int other) const;
+	};
 
 } // namespace ProceduralDungeons
 
