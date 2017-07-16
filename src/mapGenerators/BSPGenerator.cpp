@@ -9,7 +9,7 @@
 namespace ProceduralDungeons
 {
 	BSPGenerator::BSPGenerator()
-		: _width{ 10 }, _height{ 10 }, _minRoomSize{ 20 }, _nRooms{ 0 }
+		: _width{ 10 }, _height{ 10 }, _minRoomSize{ 20 }, _passagesSize{ 4 }, _nRooms{ 0 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -19,7 +19,7 @@ namespace ProceduralDungeons
 	}
 
 	BSPGenerator::BSPGenerator(int width, int height)
-		: _width{ width }, _height{ height }, _minRoomSize{ 20 }, _nRooms{ 0 }
+		: _width{ width }, _height{ height }, _minRoomSize{ 20 }, _passagesSize{ 4 }, _nRooms{ 0 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -130,63 +130,68 @@ namespace ProceduralDungeons
 
 	void BSPGenerator::CreatePassage(BSPRoom roomA, BSPRoom roomB)
 	{
-		int fromX = roomA.x + roomA.width / 2;
-		int fromY = roomA.y + roomA.height / 2;
-		int toX = roomB.x + roomB.width / 2;
-		int toY = roomB.y + roomB.height / 2;
+		int fromX = (roomA.x + 1 + _passagesSize) + std::rand() % (roomA.width - 1 - 2 * _passagesSize);
+		int fromY = (roomA.y + 1 + _passagesSize) + std::rand() % (roomA.height - 1 - 2 * _passagesSize);
+		int toX = (roomB.x + 1 + _passagesSize) + std::rand() % (roomB.width - 1 - 2 * _passagesSize);
+		int toY = (roomB.y + 1 + _passagesSize) + std::rand() % (roomB.height - 1 - 2 * _passagesSize);
 
 		int dx = toX - fromX;
 		int dy = toY - fromY;
 
-		int x = fromX;
-		int y = fromY;
-
-		bool inverted = false;
-		int step = 0;
-		int gradientStep = 0;
-		int longDist = 0;
-		int shortDist = 0;
-
-		if (std::abs(dx) >= std::abs(dy))
+		if (dx < 0)
 		{
-			step = dx >= 0 ? 1 : -1;
-			gradientStep = dy >= 0 ? 1 : -1;
-
-			longDist = std::abs(dx);
-			shortDist = std::abs(dy);
+			if (dy < 0)
+			{
+				DrawPassage(toX, fromX, toY, toY + _passagesSize);
+				DrawPassage(fromX - _passagesSize, fromX, toY, fromY);
+			}
+			else if (dy > 0)
+			{
+				DrawPassage(toX, fromX, toY - _passagesSize, toY);
+				DrawPassage(fromX - _passagesSize, fromX, fromY, toY);
+			}
+			else
+			{
+				DrawPassage(toX, fromX, fromY, fromY + _passagesSize);
+			}
+		}
+		else if (dx > 0)
+		{
+			if (dy < 0)
+			{
+				DrawPassage(fromX, toX, toY, toY + _passagesSize);
+				DrawPassage(fromX, fromX + _passagesSize, toY, fromY);
+			}
+			else if (dy > 0)
+			{
+				DrawPassage(fromX, toX, toY - _passagesSize, toY);
+				DrawPassage(fromX, fromX + _passagesSize, fromY, toY);
+			}
+			else
+			{
+				DrawPassage(fromX, toX, fromY - _passagesSize, fromY);
+			}
 		}
 		else
 		{
-			inverted = true;
-			step = dy >= 0 ? 1 : -1;
-			gradientStep = dx >= 0 ? 1 : -1;
-
-			longDist = std::abs(dy);
-			shortDist = std::abs(dx);
-		}
-
-		int gradientAccumulation = longDist / 2;
-		for (int i = 0; i < longDist; i++)
-		{
-			_map[x][y] = 0;
-
-			if (inverted)
-				y += step;
-			else
-				x += step;
-
-			gradientAccumulation += shortDist;
-			if (gradientAccumulation >= longDist)
+			if (dy < 0)
 			{
-				if (inverted)
-					x += gradientStep;
-				else
-					y += gradientStep;
-
-				gradientAccumulation -= longDist;
+				DrawPassage(fromX, fromX + _passagesSize, toY, fromY);
 			}
+			else if (dy > 0)
+			{
+				DrawPassage(fromX - _passagesSize, fromX, fromY, toY);
+			}
+
 		}
 
+	}
+
+	void BSPGenerator::DrawPassage(int startX, int finalX, int startY, int finalY)
+	{
+		for (int x = startX; x < finalX; ++x)
+		for (int y = startY; y < finalY; ++y)
+			_map[x][y] = 0;
 	}
 
 	bool BSPGenerator::IsOutOfBounds(int x, int y) const

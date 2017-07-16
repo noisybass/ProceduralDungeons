@@ -23,6 +23,7 @@ int main(int argc, char **argv)
 	int wallThresholdSize = 50;
 	int roomThresholdSize = 50;
 	int minRoomSize = 20;
+	int passagesSize = 4;
 
 	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize) + 200, mapHeight*static_cast<int>(cellSize) + 200), "Procedural Map Generator");
 	ImGui::SFML::Init(window);
@@ -132,8 +133,11 @@ int main(int argc, char **argv)
 		else if (item == 2)
 		{
 			ImGui::InputInt("Min Room Size", &minRoomSize, 2);
+			ImGui::InputInt("PassagesSize", &passagesSize);
+
 			if (ImGui::Button("Generate New Map")) {
 				bspGenerator.SetMinRoomSize(minRoomSize);
+				bspGenerator.SetPasaggesSize(passagesSize);
 				map = bspGenerator.GenerateMap();
 			}
 		}
