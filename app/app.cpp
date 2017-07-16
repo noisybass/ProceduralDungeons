@@ -22,6 +22,7 @@ int main(int argc, char **argv)
 	bool autoSmoothing = true;
 	int wallThresholdSize = 50;
 	int roomThresholdSize = 50;
+	int minRoomSize = 20;
 
 	sf::RenderWindow window(sf::VideoMode(mapWidth*static_cast<int>(cellSize) + 200, mapHeight*static_cast<int>(cellSize) + 200), "Procedural Map Generator");
 	ImGui::SFML::Init(window);
@@ -130,7 +131,9 @@ int main(int argc, char **argv)
 		}
 		else if (item == 2)
 		{
+			ImGui::InputInt("Min Room Size", &minRoomSize, 2);
 			if (ImGui::Button("Generate New Map")) {
+				bspGenerator.SetMinRoomSize(minRoomSize);
 				map = bspGenerator.GenerateMap();
 			}
 		}

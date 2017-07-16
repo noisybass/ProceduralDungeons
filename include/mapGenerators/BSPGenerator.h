@@ -12,11 +12,13 @@ namespace ProceduralDungeons
 
 		Map GenerateMap();
 
+		void SetMinRoomSize(int newMinRoomSize) { _minRoomSize = newMinRoomSize; }
 	private:
 
 		Map _map; // 0 = empty, 1 = wall
 		int _width;
 		int _height;
+		int _minRoomSize;
 		int _nRooms;
 
 		bool IsOutOfBounds(int x, int y) const;

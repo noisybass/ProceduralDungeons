@@ -9,7 +9,7 @@
 namespace ProceduralDungeons
 {
 	BSPGenerator::BSPGenerator()
-		: _width{ 10 }, _height{ 10 }, _nRooms{ 0 }
+		: _width{ 10 }, _height{ 10 }, _minRoomSize{ 20 }, _nRooms{ 0 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -19,7 +19,7 @@ namespace ProceduralDungeons
 	}
 
 	BSPGenerator::BSPGenerator(int width, int height)
-		: _width{ width }, _height{ height }, _nRooms{ 0 }
+		: _width{ width }, _height{ height }, _minRoomSize{ 20 }, _nRooms{ 0 }
 	{
 		_map = Map(_width);
 		for (int i = 0; i < _width; ++i)
@@ -43,51 +43,36 @@ namespace ProceduralDungeons
 		return _map;
 	}
 
-	int maxRoomX = 70;
-	int maxRoomY = 50;
-	int errorX = 10;
-	int errorY = 10;
-	int roomSize = 2000;
-
 	std::vector<BSPRoom> BSPGenerator::GeneratePartition(int x, int y, int width, int height)
 	{
 		std::vector<BSPRoom> roomsA;
 		std::vector<BSPRoom> roomsB;
-		bool forceHorizontal = false;
-		bool forceVertical = false;
+		bool splitVertical;
 
-		//if (sizeX < roomX && sizeY < roomY)
-		if (width*height < roomSize && width < maxRoomX && height < maxRoomY)
+		if (width > height && width / height >= 1.25)
+			splitVertical = true; 
+		else if (height > width && height / width >= 1.25)
+			splitVertical = false;
+		else
+			splitVertical = std::rand() % 2;
+
+
+		int max = (splitVertical ? width : height) - _minRoomSize;
+		if (max <= _minRoomSize)
 			roomsA.push_back(CreateRoom(x, y, width, height));
 		else
 		{
-			int orientation;
+			int randomSplit = _minRoomSize + std::rand() % (max - _minRoomSize + 1);
 
-			if (width < maxRoomX)
-				orientation = 1;
-			else if (height < maxRoomY)
-				orientation = 0;
-			else
-				orientation = std::rand() % 2;
-
-
-				int min;
-				int max;
-			if (orientation == 0) // vertical
+			if (splitVertical) // vertical
 			{
-				min = width * 0.2;
-				max = width * 0.8;
-				int randomWidth = min + std::rand() % (max - min + 1);
-				roomsA = GeneratePartition(x, y, randomWidth, height);
-				roomsB = GeneratePartition(x + randomWidth, y, width - randomWidth, height);
+				roomsA = GeneratePartition(x, y, randomSplit, height);
+				roomsB = GeneratePartition(x + randomSplit, y, width - randomSplit, height);
 			}
 			else // horizontal
 			{
-				min = height * 0.2;
-				max = height * 0.8;
-				int randomHeight = min + std::rand() % (max - min + 1);
-				roomsA = GeneratePartition(x, y, width, randomHeight);
-				roomsB = GeneratePartition(x, y + randomHeight, width, height -  randomHeight);
+				roomsA = GeneratePartition(x, y, width, randomSplit);
+				roomsB = GeneratePartition(x, y + randomSplit, width, height - randomSplit);
 			}
 
 			ConnectRooms(&roomsA, &roomsB);
