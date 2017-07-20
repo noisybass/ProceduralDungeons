@@ -37,7 +37,7 @@ This is the actual structure of the project:
 |--windowsClean.bat
 ```
 
-All you need to build the project is provide the **/libs** folder, that includes all the depenencies of the poject. You can download this dependencies from the links I provide below.
+All you need to build the project is provide the **/libs** folder, that includes all the depenencies of the project. You can download this dependencies from the links I provide below.
 
 In the project are included scripts for easy building and cleaning.
 
